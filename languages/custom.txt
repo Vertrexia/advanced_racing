@@ -1,0 +1,30 @@
+#
+#   custom language string to be used with
+#   CUSTOM_MESSAGE & CUSTOM_PLAYER_MESSAGE
+#
+#   Language Commands, shown above, are only
+#   available in 0.2.9-armagetronad-sty+ct+ap
+#
+
+include english_base.txt
+language Advanced Racing
+
+racing_respawn_limit    0x3399ffYou now only have \1 chances to replay the same map.\n
+
+race_idle_warning       0xffdd00What's wrong, your going too slow. Speed up or you'll die!\n
+race_idle_kill          0xdd00ff\1 0xffdd00has been killed for moving idely for too long.\n
+
+race_personal_time      0xff0000*0xffff00*0x00ffff* 0x335599New Personal Record of \1.\n
+
+race_time_faster        0x00ffffYour improved time is 0xffff00\1 0x00ff00(0x995500\2 0xffff00seconds faster0x00ff00)\n
+race_time_slower        0x00ffffYour best time is still 0xffff00\1 0x00ff00(0x995500\2 0xffff00seconds slower 0x00ff00)\n
+
+race_queuer_usedup      0xff7755Oh! Too bad! 0x5533aaYou've used up your queues.\n
+race_queueing_added     0x0099ffEveryone! 0xff0055\1 0x66ff22just added 0xffff77\2 0x66ff22to the queue.\n
+race_queueing_foundmany 0xffff00Wow! Seems like you found a lot of items containing the term 0xff7700\1.\n
+race_queueing_failed    0xff7777Unabled to locate any items in rotation. Queueing has failed.\n
+
+race_finish_first       0xff0000*0x00ff00*0xffff00* 0x553300\1 0x00fffffor crossed the line in 0xffff00\2 0x00ffffseconds 0xff0000*0x00ff00*0xffff00*\n
+race_finish_after_first 0x66ff22\2 0x00ffff| 0xffff77\1 0xff5588finished in 0x9999ff\3 0xff5588seconds 0x9955ff(0x5ff99\4 seconds behind first0x9955ff)\n
+
+race_rotation_loading   0xff9955Currently loading rotation map: 0x9999ff\1\n 
