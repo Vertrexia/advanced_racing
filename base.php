@@ -28,6 +28,7 @@ class Base
     var $players    = array();       //  hold players' data
     var $cycles     = array();       //  hold cycles' data
     var $races      = array();       //  hold racers' data (for those crossing the finish line)
+    var $zones      = array();       //  hold zones' data (all zones that were created onto the field)
     
     //  cycle settings
     var $chances            = 0;           //  number of times players can be respawned per round
@@ -43,8 +44,8 @@ class Base
     var $queue_copies           = false;        //  should queueing allow copies of different configs?
 
     //  rotation items to load
-    var $rotation_type      = 2;        //  0-no rotation, 1-per round, 2-per match
-    //var $rotation_load      = 0;        //  0-INCLUDE, 1-SINCLUDE, 3-RINCLUDE
+    var $rotation_max = 3;
+    var $rotation_min = 0;
 
     //  zone settings
     var $zonesCollapseAfterFinish = false;
@@ -58,7 +59,7 @@ class Base
     var $finishRank     = 1;    // increments as playes cross the finish line
     
      var $race_prv_sync = 0;
-    
+         
     function Base()
     {
         $this->timer    = new Timer;

@@ -16,6 +16,49 @@ while(1)
         if (!queuerExists($pieces[1]))
             newQueuer($pieces[1]);
     }
+    elseif (startswith($line, "PLAYER_RENAMED"))
+    {
+        $pieces = explode(" ", $line);
+        
+        $player = getPlayer($pieces[1]);
+        if ($player)
+        {
+            $player->log_name       = $pieces[2];
+            $player->screen_name    = substr($line, strlen($pieces[0]) + strlen($pieces[1]) + strlen($pieces[2]) + strlen($pieces[3]) + 4);
+            
+            if (!queuerExists($player->log_name))
+                newQueuer($player->log_name);
+        }
+    }
+    elseif (startswith($line, "PLAYER_LEFT"))
+    {
+        $pieces = explode(" ", $line);
+        
+        for($i = 0; $i < count($game->players); $i++)
+        {
+            $player = $game->players[$i];
+            if ($player instanceof Player)
+            {
+                if ($player->log_name == $pieces[1])
+                {
+                    //  if the player left the grid and server at the same time, let's make the cycle not alive
+                    $cycle = getCycle($player->log_name);
+                    if ($cycle)
+                    {
+                        $cycle->isAlive = false;
+                        $cycle->player  = null;
+                    }
+                    
+                    //  let's delete player's data
+                    unset($game->players[$i]);
+                    unset($player);
+                    
+                    //  break out of the loop since our work is done
+                    break;
+                }
+            }
+        }
+    }
     elseif (startswith($line, "CYCLE_CREATED"))
     {
         $pieces = explode(" ", $line);
@@ -64,52 +107,26 @@ while(1)
         }
         $game->sql->close();
     }
-    elseif (startswith($line, "NEW_MATCH"))
-    {
-        //  check if the queue is empty to do regular rotation
-        if (count($game->queue_items) == 0)
-        {
-            //  rotatie every match
-            if ($game->rotation_type == 2)
-            {
-                $game->rotation->rotate();        //  rotate item
-                $game->rotation->done = true;     //  yup, rotation has done it's job
-            }
-        }
-    }    
     elseif (startswith($line, "NEW_ROUND"))
     {
         //  check if the queue is empty to do regular rotation
         if (count($game->queue_items) == 0)
         {
-            //  rotate every round
-            if (($game->rotation_type == 1) && (!$game->rotation->done))
+            //  rotate once the rotation max is reached
+            if ($game->rotation_min == $game->rotation_max)
             {
                 $game->rotation->rotate();        //  rotate item
-                $game->rotation->done = true;     //  yup, rotation has done it's job
+                $game->rotation_min = 0;          //  reset value
             }
+            else $game->rotation_min++;           //  increment value
         }
         else
         {
             $item = $game->queue_items[0];
             if ($item != "")
-            {
-                /*if ($game->rotation_load == 0)
-                {
-                    echo "INCLUDE ".$item."\n";
-                }
-                elseif ($game->rotation_load == 1)
-                {
-                    echo "SINCLUDE ".$item."\n";
-                }
-                elseif ($game->rotation_load == 2)
-                {
-                    echo "RINCLUDE ".$item."\n";
-                }*/
-                
+            {                
                 echo "MAP_FILE ".$item."\n";
                 
-                //con("Reading from queue: ".$item);
                 cm("race_queue_loading", array($item));
             }
             
@@ -123,12 +140,6 @@ while(1)
                 unset($game->queue_items[0]);
         }
     }
-    elseif (startswith($line, "MATCH_ENDED"))
-    {
-        //  reset done for rotation per match
-        if ($game->rotation_type == 2)
-            $game->rotation->done = false;
-    }
     elseif (startswith($line, "WINZONE_PLAYER_ENTER"))
     {
         $lineExt = explode(" ", $line);
@@ -137,30 +148,49 @@ while(1)
     elseif (startswith($line, "INVALID_COMMAND"))
     {
         $pieces = explode(" ", $line);
+        $player = getPlayer($pieces[2]);
+        
+        if (!$player)
+            return;
+        
+        $extra = substr($line, strlen($pieces[0]) + strlen($pieces[1]) + strlen($pieces[2]) + strlen($pieces[3]) + strlen($pieces[4]) + 5);
         
         //  chat command to add maps to queue
         if ($pieces[1] == "/q")
         {
-            $extra = substr($line, strlen($pieces[0]) + strlen($pieces[1]) + strlen($pieces[2]) + strlen($pieces[3]) + strlen($pieces[4]) + 5);
             makeQueue($pieces[2], $extra);
         }
         //  display the maps currently loaded in rotation
         elseif ($pieces[1] == "/r")
         {
-            $game->rotation->displayRotation($pieces[2]);
+            $pos = 0;
+            $page = extractNonBlankString($extra, $pos);
+            
+            if (is_numeric($page))
+                $game->rotation->displayRotation($pieces[2]);
+            else
+            {
+                pm($player->screen_name, '0x9999ffOpps, wrong usage.');
+                pm($player->screen_name, 'Usage: /r page_number. Replace "page_number" with the id of the maps to view.');
+                pm($player->screen_name, '0x9999ffIDs of the maps from 1 - 64. So, you have plenty of ids to choose from.');
+            }
         }
-        //  add a map to the rotation bank
-        elseif ($pieces[1] == "/add")
-        {
-            //  code later
-        }
-        //  remove a map from the rotation bank (won't actually delete map but sets "allow" to 0 instead)
-        elseif ($pieces[1] == "/remove")
-        {
-            //  code later
-        }
+        else
+            pm($player->screen_name, "What are you doing? ".$pieces[1]." is an unknwon command.");
     }
-    
+    elseif ((startswith($line, "ZONE_CREATED")) || (startswith($line, "ZONE_SPAWNED")))
+    {
+        $pieces = explode(" ", $line);
+        
+        //  add spawned zone to list
+        new Zone($pieces[1], $pieces[2]);
+    }
+    elseif (startswith($line, "SHUTDOWN"))
+    {
+        //  quit the script since server has shutdown
+        exit();
+    }
+
     racesync();
 }
 ?>

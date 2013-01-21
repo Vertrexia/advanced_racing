@@ -6,7 +6,6 @@ class Rotation
 {
     var $current    = "";      //  holds the currently loaded item
     var $currentID  = 0;       //  the current row of loaded item from mysql
-    var $done       = false;
     
     function rotate()
     {
@@ -43,27 +42,9 @@ class Rotation
                     }
                 }
 
-                //  make sure rotation is enabled
-                if ($game->rotation_type > 0)
-                {
-                    /*if ($game->rotation_load == 0)
-                    {
-                        echo "INCLUDE ".$this->current."\n";
-                    }
-                    elseif ($game->rotation_load == 1)
-                    {
-                        echo "SINCLUDE ".$this->current."\n";
-                    }
-                    elseif ($game->rotation_load == 2)
-                    {
-                        echo "RINCLUDE ".$this->current."\n";
-                    }*/
-                    
-                    echo "MAP_FILE ".$this->current."\n";
+                echo "MAP_FILE ".$this->current."\n";
 
-                    //con("Reading from ".$this->current);
-                    cm("race_rotation_loading", array($this->current));
-                }
+                cm("race_rotation_loading", array($this->current));
             }
         }
         else
@@ -72,7 +53,7 @@ class Rotation
         $game->sql->close();
     }
 
-    function displayRotation($name)
+    function displayRotation($name, $page)
     {
         global $game;
         
@@ -83,15 +64,22 @@ class Rotation
             
             pm($player->screen_name, "0xff5500List of maps in rotation:");
             
-            $result = mysql_query('SELECT * FROM `'.$game->sql->mysql_table_rotation.'` ORDER BY `id` ASC', $game->sql->sql);
+            $result = mysql_query('SELECT * FROM `'.$game->sql->mysql_table_rotation.'` ORDER BY `id` ASC LIMIT '.$page.', 10', $game->sql->sql);
+            $max_id = 0;
             if ($result)
             {
                 if (mysql_num_rows($result) > 0)
                 {
                     while($row = mysql_fetch_assoc($result))
                     {
-                        pm($player->screen_name, "0xff00ff+ 0x3399ff".$row["item"]);
+                        pm($player->screen_name, "+ 0xff00ff".$row["id"]." 0x3399ff".$row["item"]);
+                        $max_id = $row["id"];
                     }
+                }
+                
+                if ($max_id < mysql_num_rows($result))
+                {
+                    pm($player->screen_name, " 0x0099ffThere are ".(mysql_num_rows($result) - $max_id)." more maps in the rotation bank.");
                 }
             }
             else

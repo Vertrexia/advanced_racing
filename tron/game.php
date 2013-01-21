@@ -66,8 +66,6 @@ function roundBegan()
     $game->finishRank = 1;
 
     $game->roundFinished = false;
-    
-    //showLadder();      //  show ranks
 }
 
 function roundEnded()
@@ -77,13 +75,10 @@ function roundEnded()
     $game->timer->stop();
     $game->roundFinished = true;
     
-    //  reset done for rotation per round
-    if ($game->rotation_type == 1)
-        $game->rotation->done = false;
-    
-    //showLadder();
+    showLadder();
 
     clearCycles();
+    clearZones();
 }
 
 function declareRoundWinner($name)

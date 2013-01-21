@@ -58,7 +58,7 @@ function racesync()
     //  perform actions if no one is alive and there are humans players present in the server
     if (($humans > 0) && ($alive == 0) && ($ais == 0))
     {
-        $game->game->roundFinished = true;
+        $game->roundFinished = true;
         decideWinner();
         return;
     }
@@ -125,6 +125,22 @@ function crossLine($name)
 {
     global $game;
 
+    $found = false;
+    if (count($game->races) > 0)
+    {
+        foreach ($game->races as $racer)
+        {
+            if ($racer instanceof Race)
+            {
+                if ($racer->name == $name)
+                    $found = true;
+            }
+        }
+    }
+    
+    //  if player has already crossed the finish line, don't do the following
+    if ($found) return;
+    
     $rPlayer = new Race;
     if ($rPlayer)
     {
@@ -170,10 +186,10 @@ function decideWinner()
     {
         foreach ($game->races as $racer)
         {
-            if ($racer)
+            if ($racer instanceof Race)
             {
                 $player = getPlayer($racer->name);
-                if ($player)
+                if ($player && $racer->first)
                 {
                     declareRoundWinner($player->screen_name);
                 }

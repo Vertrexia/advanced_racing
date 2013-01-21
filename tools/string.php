@@ -95,4 +95,28 @@ function extractNonBlankString($str, &$pos)
 
     return $toReturn;
 }
+
+function setPos(&$str, $pos, $cut)
+{
+    if ( $pos < strlen($str) )
+    {
+        if ( $cut )
+        {
+            if ( $pos > 0 )
+            {
+                $str .= ' ';
+            }
+        }
+        else
+        {
+            $str .= ' ';
+        }
+    }
+    if( $pos == strlen($str) && !$cut)
+    {
+        $str .= ' ';
+    }
+    for($i = strlen($str); $i < $pos; $i++)
+        $str .= ' ';
+}
 ?>

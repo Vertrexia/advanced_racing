@@ -145,27 +145,34 @@ function makeQueue($name, $extra)
         $player = getPlayer($name);
         if ($player)
         {
-            if (mysql_num_rows($result) > 0)
+            if ($item != "")
             {
-                $found = array();
-                while($row = mysql_fetch_assoc($result))
+                if (mysql_num_rows($result) > 0)
                 {
-                    if (contains($row["item"], $item))
+                    $found = array();
+                    while($row = mysql_fetch_assoc($result))
                     {
-                        $found[] = $row["item"];
+                        if (contains($row["item"], $item))
+                        {
+                            $found[] = $row["item"];
+                        }
                     }
-                }
-                
-                if (count($found) > 0)
-                {
-                    if (count($find) == 1)
+                    
+                    if (count($found) > 0)
                     {
-                        $game->queue_items[] = $find[0];
-                        cm("race_queueing_added", array($player->screen_name, $find[0]));
+                        if (count($find) == 1)
+                        {
+                            $game->queue_items[] = $find[0];
+                            cm("race_queueing_added", array($player->screen_name, $find[0]));
+                        }
+                        else
+                        {
+                            cpm($player->screen_name, "race_queueing_foundmany", array($item));
+                        }
                     }
                     else
                     {
-                        cpm($player->screen_name, "race_queueing_foundmany", array($item));
+                        cpm($player->screen_name, "race_queueing_failed", array($item));
                     }
                 }
                 else
@@ -175,7 +182,7 @@ function makeQueue($name, $extra)
             }
             else
             {
-                cpm($player->screen_name, "race_queueing_failed", array($item));
+                pm($player->screen_name, "0xffdd77Oops. Your entry is empty.");
             }
         }
     }

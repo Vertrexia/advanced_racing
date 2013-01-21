@@ -139,20 +139,7 @@ function player_gridpos($name, $x, $y, $xdir, $ydir, $speed)
             else
             {
                 if ($cycle->isAlive && $game->kill_idle)
-                {
-                    /*if (($cycle->pos->x == $x) && ($cycle->pos->y == $y)) {
-                        $breakTime = $game->timer->gameTimer();
-                        if (!$cycle->kill_idle_activated) {
-                            $cycle->kill_idle_break = $game->timer->gameTimer() + $game->kill_idle_wait;
-                            $cycle->kill_idle_activated = true;
-                        } elseif (($breakTime >= $cycle->kill_idle_break) && ($cycle->kill_idle_break != -1)) {
-                            $game->game->killPlayer($player->name);
-
-                            $cycle->kill_idle_activated = false;
-                            $cycle->kill_idle_break = -1;
-                        }
-                    }*/
-                    
+                {                    
                     if ($cycle->isAlive && ($cycle->speed <= $game->kill_idle_speed))
                     {
                         if (!$cycle->kill_idle_activated)
@@ -161,7 +148,7 @@ function player_gridpos($name, $x, $y, $xdir, $ydir, $speed)
                             {
                                 //  waits this many seconds before rechecking if player is still moving or stopped
                                 $cycle->idle_limit = $game->timer->gameTimer() + $game->kill_idle_wait;
-                                $cycle->idle_begin = $game->timer->gameTimer();                                    
+                                $cycle->idle_begin = $game->timer->gameTimer();
                             }
                             
                             if ($game->timer->gameTimer() >= $cycle->idle_limit)
